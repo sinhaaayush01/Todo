@@ -2,4 +2,22 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  text-align: center;
+}
+#tododate{
+	margin-right: 5px;
+}
+#todoinput{
+	margin-right: 5px;
+}
+h2{
+	margin-top: 0px;
+	font-family: sans-serif;
+}
+ul li{
+	list-style: none;
+}
+header{
+	background-color: #e3e3e3;
+	height: 130px;
 }

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Request from 'superagent';
 import _ from 'lodash';
 import Addtodo from './components/addtodo';
-import TodoItem from './components/todoItem';
 var chrono = require('chrono-node');
 var moment = require('moment');
 
@@ -15,29 +14,47 @@ class App extends Component {
     this.updatingstate = this.updatingstate.bind(this)
     this.id = 0;
   }
-  getinput(input){
-    console.log(chrono.parseDate(input));
-    var url = "http://localhost:3000/tasks";
+  getinput(input,inputdate){
+    let c='';
+    if(inputdate===''){
+    if(moment(chrono.parseDate(input)).format('LLLL')==='Invalid date')
+    {
+      alert('Enter Manual Deadline');
+    }
+    else
+    {
+      c=moment(chrono.parseDate(input)).format('LLLL');
+      let url = "http://localhost:3000/tasks";
     Request.post(url)
-    .send({ id: this.id , todoitem: input, tododate: moment(chrono.parseDate(input)).format('LLLL') })
+    .send({ id: this.id , todoitem: input, tododate: c })
+    .then(this.updatingstate)
+    }
+  }
+  else{
+    c=inputdate;
+    let url = "http://localhost:3000/tasks";
+    Request.post(url)
+    .send({ id: this.id , todoitem: input, tododate:moment(chrono.parseDate(c)).format('LLLL') })
     .then(this.updatingstate)
 
   }
-  componentDidMount(){
-    var url = "http://localhost:3000/tasks";
+  }
+  componentWillMount(){
+    let url = "http://localhost:3000/tasks";
     Request.get(url).then((response)=>{
       this.setState({
         tasks:response.body
       });
+      console.log(response.body);
     });
   }
   dodelete(key){
     console.log(key);
-     var url = `http://localhost:3000/tasks/${key}`;
+     let url = `http://localhost:3000/tasks/${key}`;
     Request.del(url).then(this.updatingstate);
   }
   updatingstate(){
-    var url = "http://localhost:3000/tasks";
+    let url = "http://localhost:3000/tasks";
     Request.get(url).then((response)=>{
       this.setState({
         tasks:response.body
@@ -45,13 +62,19 @@ class App extends Component {
     });
   }
   render() {
-    var tasks = _.map(this.state.tasks,(task) =>{
-      return <li><b>Task:</b> {task.todoitem}, <b>Due by:</b> {task.tododate} 
-      <button onClick={() => this.dodelete(task.id)} className="btn btn-link" type="submit">Delete</button></li>
+    let tasks = _.map(this.state.tasks,(task) =>{
+      return <li><b>Task:</b> {task.todoitem} <b>Due by:</b> {task.tododate} 
+      <button onClick={() => this.dodelete(task.id)} className="btn btn-link" type="submit">Done</button><hr /></li>
     });
     return (
       <div>
+      <header>
+      <br />
+      <h2><b>ToDo List</b></h2>
+      <br />
         <Addtodo getinput={this.getinput} />
+        </header>
+        <br />
         <ul>{tasks}</ul>
       </div>
     );
